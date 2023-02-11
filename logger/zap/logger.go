@@ -114,7 +114,7 @@ func (l Logger) sweetenFields(args ...interface{}) []zap.Field {
 		} else {
 			switch args[i+1].(type) {
 			case proto.Message:
-				fields = append(fields, zap.Reflect(key, _PBMessage{args[i+1]}))
+				fields = append(fields, zap.Reflect(key, ProtoMessage{args[i+1]}))
 			default:
 				fields = append(fields, zap.Any(key, args[i+1]))
 			}
@@ -126,16 +126,16 @@ func (l Logger) sweetenFields(args ...interface{}) []zap.Field {
 	return fields
 }
 
-type _PBMessage struct {
+type ProtoMessage struct {
 	v interface{}
 }
 
-func (pbm _PBMessage) MarshalJSON() ([]byte, error) {
+func (pm ProtoMessage) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
 		UseEnumNumbers:  false,
 		EmitUnpopulated: true,
 		UseProtoNames:   true,
-	}.Marshal(pbm.v.(proto.Message))
+	}.Marshal(pm.v.(proto.Message))
 }
 
 func (l Logger) NoCaller() logger.Logger {
