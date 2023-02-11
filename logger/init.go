@@ -1,7 +1,6 @@
 package logger
 
 import (
-	zapLogger "github.com/kovercjm/tool-go/logger/zap"
 	"os"
 )
 
@@ -15,7 +14,7 @@ func New(config *Config, options ...Option) (Logger, error) {
 		option(l)
 	}
 	if l.Logger == nil {
-		l.Logger = zapLogger.Logger{}
+		l.Logger = ZapLogger{}
 	}
 
 	return l.Logger.Init(config)

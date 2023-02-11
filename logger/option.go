@@ -1,13 +1,9 @@
 package logger
 
-import (
-	zapLogger "github.com/kovercjm/tool-go/logger/zap"
-)
-
-type Option func(*newLogger)
+type Option func(Logger)
 
 func Zap() Option {
-	return func(o *newLogger) {
-		o.Logger = zapLogger.Logger{}
+	return func(l Logger) {
+		l = ZapLogger{}
 	}
 }
