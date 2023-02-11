@@ -156,3 +156,7 @@ func (l ZapLogger) Sync() error {
 	}
 	return nil
 }
+
+func (l ZapLogger) Zap() *zap.Logger {
+	return l.logger
+}
