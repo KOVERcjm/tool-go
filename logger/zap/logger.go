@@ -127,7 +127,7 @@ func (l Logger) sweetenFields(args ...interface{}) []zap.Field {
 }
 
 type ProtoMessage struct {
-	v interface{}
+	Value interface{}
 }
 
 func (pm ProtoMessage) MarshalJSON() ([]byte, error) {
@@ -135,7 +135,7 @@ func (pm ProtoMessage) MarshalJSON() ([]byte, error) {
 		UseEnumNumbers:  false,
 		EmitUnpopulated: true,
 		UseProtoNames:   true,
-	}.Marshal(pm.v.(proto.Message))
+	}.Marshal(pm.Value.(proto.Message))
 }
 
 func (l Logger) NoCaller() logger.Logger {
