@@ -1,4 +1,4 @@
-package logger
+package zap
 
 import (
 	"syscall"
@@ -9,13 +9,17 @@ import (
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/kovercjm/tool-go/logger"
 )
 
-type ZapLogger struct {
+var _ logger.Logger = (*Logger)(nil)
+
+type Logger struct {
 	logger *zap.Logger
 }
 
-func (l ZapLogger) Init(config *Config) (Logger, error) {
+func (l Logger) Init(config *logger.Config) (logger.Logger, error) {
 	var zapConfig zap.Config
 	options := []zap.Option{zap.AddCallerSkip(1)}
 
@@ -59,38 +63,38 @@ func (l ZapLogger) Init(config *Config) (Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ZapLogger{logger: zapLogger}, nil
+	return Logger{logger: zapLogger}, nil
 }
 
-func (l ZapLogger) Debug(msg string, args ...interface{}) {
+func (l Logger) Debug(msg string, args ...interface{}) {
 	if l.logger == nil {
 		return
 	}
 	l.logger.Debug(msg, l.sweetenFields(args...)...)
 }
 
-func (l ZapLogger) Info(msg string, args ...interface{}) {
+func (l Logger) Info(msg string, args ...interface{}) {
 	if l.logger == nil {
 		return
 	}
 	l.logger.Info(msg, l.sweetenFields(args...)...)
 }
 
-func (l ZapLogger) Warn(msg string, args ...interface{}) {
+func (l Logger) Warn(msg string, args ...interface{}) {
 	if l.logger == nil {
 		return
 	}
 	l.logger.Warn(msg, l.sweetenFields(args...)...)
 }
 
-func (l ZapLogger) Error(msg string, args ...interface{}) {
+func (l Logger) Error(msg string, args ...interface{}) {
 	if l.logger == nil {
 		return
 	}
 	l.logger.Error(msg, l.sweetenFields(args...)...)
 }
 
-func (l ZapLogger) sweetenFields(args ...interface{}) []zap.Field {
+func (l Logger) sweetenFields(args ...interface{}) []zap.Field {
 	if len(args) == 0 {
 		return nil
 	}
@@ -137,14 +141,14 @@ func (pm ProtoMessage) MarshalJSON() ([]byte, error) {
 	}.Marshal(pm.Value.(proto.Message))
 }
 
-func (l ZapLogger) NoCaller() Logger {
+func (l Logger) NoCaller() logger.Logger {
 	if l.logger == nil {
 		return nil
 	}
-	return ZapLogger{logger: l.logger.WithOptions(zap.WithCaller(false))}
+	return Logger{logger: l.logger.WithOptions(zap.WithCaller(false))}
 }
 
-func (l ZapLogger) Sync() error {
+func (l Logger) Sync() error {
 	if l.logger == nil {
 		return nil
 	}
@@ -157,6 +161,6 @@ func (l ZapLogger) Sync() error {
 	return nil
 }
 
-func (l ZapLogger) Zap() *zap.Logger {
+func (l Logger) Zap() *zap.Logger {
 	return l.logger
 }
