@@ -10,16 +10,16 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/kovercjm/tool-go/logger"
+	kLogger "github.com/kovercjm/tool-go/logger"
 )
 
-var _ logger.Logger = (*Logger)(nil)
+var _ kLogger.Logger = (*Logger)(nil)
 
 type Logger struct {
 	logger *zap.Logger
 }
 
-func (l Logger) Init(config *logger.Config) (logger.Logger, error) {
+func (l Logger) Init(config *kLogger.Config) (kLogger.Logger, error) {
 	var zapConfig zap.Config
 	options := []zap.Option{zap.AddCallerSkip(1)}
 
@@ -141,7 +141,7 @@ func (pm ProtoMessage) MarshalJSON() ([]byte, error) {
 	}.Marshal(pm.Value.(proto.Message))
 }
 
-func (l Logger) NoCaller() logger.Logger {
+func (l Logger) NoCaller() kLogger.Logger {
 	if l.logger == nil {
 		return nil
 	}
@@ -161,6 +161,6 @@ func (l Logger) Sync() error {
 	return nil
 }
 
-func Zap(l logger.Logger) *zap.Logger {
-	return l.(*Logger).logger
+func Raw(l kLogger.Logger) *Logger {
+	return &Logger{l.(*Logger).logger}
 }
