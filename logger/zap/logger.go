@@ -161,6 +161,6 @@ func (l Logger) Sync() error {
 	return nil
 }
 
-func Raw(l kLogger.Logger) *Logger {
-	return &Logger{l.(*Logger).logger}
+func Zap(l kLogger.Logger) *zap.Logger {
+	return l.(*Logger).logger
 }
