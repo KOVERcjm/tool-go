@@ -11,7 +11,7 @@ type newLogger struct {
 	logger.Logger
 }
 
-func New(config *logger.Config, options ...LoggerOption) (logger.Logger, error) {
+func NewLogger(config *logger.Config, options ...LoggerOption) (logger.Logger, error) {
 	l := &newLogger{}
 	for _, option := range options {
 		option(l)
@@ -23,12 +23,12 @@ func New(config *logger.Config, options ...LoggerOption) (logger.Logger, error) 
 	return l.Logger.Init(config)
 }
 
-func Default() (logger.Logger, error) {
+func DefaultLogger() (logger.Logger, error) {
 	deployment := os.Getenv("DEPLOYMENT") // try to get deployment name from env
 	if deployment == "" {
 		deployment = "default"
 	}
-	return New(&logger.Config{Deployment: deployment})
+	return NewLogger(&logger.Config{Deployment: deployment})
 }
 
 type LoggerOption func(logger.Logger)
