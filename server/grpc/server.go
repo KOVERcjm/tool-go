@@ -20,18 +20,16 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.Config, logger logger.Logger) server.Server {
-	return Server{
-		RPCServer: grpc.NewServer(
-			grpc.MaxSendMsgSize(config.MessageSize),
-			grpc.MaxRecvMsgSize(config.MessageSize),
-			grpc.ChainUnaryInterceptor(
-				LoggerInterceptor(logger),
-			),
+func (s Server) Init(config *server.Config, logger logger.Logger) {
+	s.RPCServer = grpc.NewServer(
+		grpc.MaxSendMsgSize(config.MessageSize),
+		grpc.MaxRecvMsgSize(config.MessageSize),
+		grpc.ChainUnaryInterceptor(
+			LoggerInterceptor(logger),
 		),
-		config: &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.MessageSize},
-		logger: logger.NoCaller(),
-	}
+	)
+	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.MessageSize}
+	s.logger = logger.NoCaller()
 }
 
 func (s Server) Start(ctx context.Context) error {
