@@ -30,7 +30,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 	)
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
-	return s
+	return &s
 }
 
 func (s Server) Start(ctx context.Context) error {
