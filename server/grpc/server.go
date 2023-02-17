@@ -11,17 +11,17 @@ import (
 	"github.com/kovercjm/tool-go/server"
 )
 
-var _ server.Server = (*GRPCServer)(nil)
+var _ server.Server = (*Server)(nil)
 
-type GRPCServer struct {
+type Server struct {
 	RPCServer *grpc.Server
 
 	config *server.RPCConfig
 	logger logger.Logger
 }
 
-func (s GRPCServer) Init(config *server.RPCConfig, logger logger.Logger) server.Server {
-	return GRPCServer{
+func (s Server) Init(config *server.RPCConfig, logger logger.Logger) server.Server {
+	return Server{
 		RPCServer: grpc.NewServer(
 			grpc.MaxSendMsgSize(config.MessageSize),
 			grpc.MaxRecvMsgSize(config.MessageSize),
@@ -34,7 +34,7 @@ func (s GRPCServer) Init(config *server.RPCConfig, logger logger.Logger) server.
 	}
 }
 
-func (s GRPCServer) Start(ctx context.Context) error {
+func (s Server) Start(ctx context.Context) error {
 	address := fmt.Sprintf("0.0.0.0:%d", s.config.Port)
 	netListener, err := net.Listen("tcp4", address)
 	if err != nil {
@@ -48,7 +48,7 @@ func (s GRPCServer) Start(ctx context.Context) error {
 	}(ctx)
 	return nil
 }
-func (s GRPCServer) Stop(_ context.Context) error {
+func (s Server) Stop(_ context.Context) error {
 	s.RPCServer.GracefulStop()
 	return nil
 }

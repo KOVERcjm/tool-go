@@ -29,7 +29,7 @@ const (
 	GRPCGatewayImpl
 )
 
-func NewServer(config *server.Config, options ...Option) (server.Server, error) {
+func NewServer(options ...Option) (server.Server, error) {
 	s := &newServer{}
 	for _, option := range options {
 		option(s)
@@ -39,7 +39,7 @@ func NewServer(config *server.Config, options ...Option) (server.Server, error) 
 	case s.apiChoice == NoAPI && s.rpcChoice == NoRPC:
 		return nil, fmt.Errorf("no server implementation selected")
 	case s.apiChoice == NoAPI && s.rpcChoice == GRPCImpl:
-		s.Server = grpc.GRPCServer{}
+		s.Server = grpc.Server{}
 	case s.apiChoice == GRPCGatewayImpl && s.rpcChoice == NoRPC:
 		return nil, fmt.Errorf("grpc gateway requires grpc server")
 	case s.apiChoice == GRPCGatewayImpl && s.rpcChoice == GRPCImpl:

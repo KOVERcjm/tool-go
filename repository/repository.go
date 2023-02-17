@@ -7,8 +7,8 @@ import (
 )
 
 type Repository interface {
+	Init(*Config, logger.Logger) (Repository, error)
+
 	ToCtx(context.Context, interface{}) context.Context
 	Ctx(context.Context) Repository
-
-	Init(*Config, logger.Logger) (Repository, error)
 }
