@@ -24,12 +24,12 @@ func (fl fxLogger) LogEvent(event fxevent.Event) {
 	}
 	switch e := event.(type) {
 	case *fxevent.OnStartExecuting:
-		fl.logger.Info("OnStart hook executing", "callee", e.FunctionName, "caller", e.CallerName)
+		fl.logger.Info("OnStart hook executing")
 	case *fxevent.OnStartExecuted:
 		if e.Err != nil {
-			fl.logger.Error("OnStart hook failed", "callee", e.FunctionName, "caller", e.CallerName)
+			fl.logger.Error("OnStart hook failed")
 		} else {
-			fl.logger.Info("OnStart hook executed", "callee", e.FunctionName, "caller", e.CallerName, "runtime", e.Runtime.String())
+			fl.logger.Info("OnStart hook executed", "runtime", e.Runtime.String())
 		}
 	case *fxevent.OnStopExecuting:
 		fl.logger.Info("OnStop hook executing", "callee", e.FunctionName, "caller", e.CallerName)
