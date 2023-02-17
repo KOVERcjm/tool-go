@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"net"
 
 	"google.golang.org/grpc"
@@ -30,6 +31,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) {
 	)
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
+	spew.Dump(s.RPCServer)
 }
 
 func (s Server) Start(ctx context.Context) error {
