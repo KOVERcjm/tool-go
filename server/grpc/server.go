@@ -48,7 +48,16 @@ func (s Server) Start(ctx context.Context) error {
 	}(ctx)
 	return nil
 }
+
 func (s Server) Stop(_ context.Context) error {
 	s.RPCServer.GracefulStop()
+	return nil
+}
+
+func (s Server) RPC() any {
+	return s.RPCServer
+}
+
+func (s Server) API() any {
 	return nil
 }
