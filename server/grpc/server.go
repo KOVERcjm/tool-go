@@ -20,7 +20,7 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.RPCConfig, logger logger.Logger) server.Server {
+func (s Server) Init(config *server.Config, logger logger.Logger) server.Server {
 	return Server{
 		RPCServer: grpc.NewServer(
 			grpc.MaxSendMsgSize(config.MessageSize),
@@ -29,7 +29,7 @@ func (s Server) Init(config *server.RPCConfig, logger logger.Logger) server.Serv
 				LoggerInterceptor(logger),
 			),
 		),
-		config: &server.RPCConfig{Port: config.Port, MessageSize: config.MessageSize},
+		config: &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.MessageSize},
 		logger: logger.NoCaller(),
 	}
 }
