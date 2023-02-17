@@ -29,7 +29,7 @@ const (
 	GRPCGatewayImpl
 )
 
-func NewServer(options ...Option) (server.Server, error) {
+func NewServer(options ...serverOption) (server.Server, error) {
 	s := &newServer{}
 	for _, option := range options {
 		option(s)
@@ -51,15 +51,15 @@ func NewServer(options ...Option) (server.Server, error) {
 	return s.Server, nil
 }
 
-type Option func(*newServer)
+type serverOption func(*newServer)
 
-func GRPC() Option {
-	return func(s *newServer) {
+var (
+	GRPC serverOption = func(s *newServer) {
 		s.rpcChoice = GRPCImpl
 	}
-}
+)
 
-func GRPCGateway() Option {
+func GRPCGateway() serverOption {
 	return func(s *newServer) {
 		s.apiChoice = GRPCGatewayImpl
 	}

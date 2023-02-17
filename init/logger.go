@@ -33,8 +33,6 @@ func DefaultLogger() (logger.Logger, error) {
 
 type LoggerOption func(logger.Logger)
 
-func LoggerUseZap() LoggerOption {
-	return func(l logger.Logger) {
-		l = zap.Logger{}
-	}
+var Zap LoggerOption = func(l logger.Logger) {
+	l = zap.Logger{}
 }
