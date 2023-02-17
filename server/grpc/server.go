@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/davecgh/go-spew/spew"
 	"google.golang.org/grpc"
 
 	"github.com/kovercjm/tool-go/logger"
@@ -21,14 +22,15 @@ type Server struct {
 }
 
 func (s Server) Init(config *server.Config, logger logger.Logger) {
+	spew.Dump(config)
 	s.RPCServer = grpc.NewServer(
-		grpc.MaxSendMsgSize(config.MessageSize),
-		grpc.MaxRecvMsgSize(config.MessageSize),
+		grpc.MaxSendMsgSize(config.RPCConfig.MessageSize),
+		grpc.MaxRecvMsgSize(config.RPCConfig.MessageSize),
 		grpc.ChainUnaryInterceptor(
 			LoggerInterceptor(logger),
 		),
 	)
-	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.MessageSize}
+	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
 }
 
