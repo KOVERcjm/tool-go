@@ -39,7 +39,7 @@ func NewServer(options ...serverOption) (server.Server, error) {
 	case s.apiChoice == NoAPI && s.rpcChoice == NoRPC:
 		return nil, fmt.Errorf("no server implementation selected")
 	case s.apiChoice == NoAPI && s.rpcChoice == GRPCImpl:
-		s.Server = grpc.Server{}
+		s.Server = &grpc.Server{}
 	case s.apiChoice == GRPCGatewayImpl && s.rpcChoice == NoRPC:
 		return nil, fmt.Errorf("grpc gateway requires grpc server")
 	case s.apiChoice == GRPCGatewayImpl && s.rpcChoice == GRPCImpl:

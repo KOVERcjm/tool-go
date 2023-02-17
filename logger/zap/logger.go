@@ -63,7 +63,7 @@ func (l Logger) Init(config *kLogger.Config) (kLogger.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Logger{logger: zapLogger}, nil
+	return &Logger{logger: zapLogger}, nil
 }
 
 func (l Logger) Debug(msg string, args ...interface{}) {

@@ -17,7 +17,7 @@ func NewLogger(config *logger.Config, options ...LoggerOption) (logger.Logger, e
 		option(l)
 	}
 	if l.Logger == nil {
-		l.Logger = zap.Logger{}
+		l.Logger = &zap.Logger{}
 	}
 
 	return l.Logger.Init(config)
@@ -34,5 +34,5 @@ func DefaultLogger() (logger.Logger, error) {
 type LoggerOption func(logger.Logger)
 
 var Zap LoggerOption = func(l logger.Logger) {
-	l = zap.Logger{}
+	l = &zap.Logger{}
 }
