@@ -22,7 +22,6 @@ type Server struct {
 }
 
 func (s Server) Init(config *server.Config, logger logger.Logger) {
-	spew.Dump(config)
 	s.RPCServer = grpc.NewServer(
 		grpc.MaxSendMsgSize(config.RPCConfig.MessageSize),
 		grpc.MaxRecvMsgSize(config.RPCConfig.MessageSize),
@@ -32,6 +31,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) {
 	)
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
+	spew.Dump(s)
 }
 
 func (s Server) Start(ctx context.Context) error {

@@ -2,7 +2,6 @@ package init
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/kovercjm/tool-go/logger"
 	"github.com/kovercjm/tool-go/server"
@@ -35,8 +34,6 @@ func NewServer(options ...serverOption) (server.Server, error) {
 	for _, option := range options {
 		option(s)
 	}
-
-	spew.Dump(s)
 
 	switch {
 	case s.apiChoice == NoAPI && s.rpcChoice == NoRPC:
