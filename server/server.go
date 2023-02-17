@@ -11,7 +11,4 @@ type Server interface {
 
 	Start(context.Context) error
 	Stop(context.Context) error
-
-	RPC() any
-	API() any
 }

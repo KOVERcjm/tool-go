@@ -26,5 +26,4 @@ func InitFromEnv(target interface{}, envFiles ...string) {
 	if err := envconfig.Process(deployment, target); err != nil {
 		fmt.Printf("cannot load config from env: %v", err)
 	}
-	fmt.Println("Load config from env success", "config", target)
 }

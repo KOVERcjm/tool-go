@@ -8,9 +8,10 @@ import (
 	"github.com/kovercjm/tool-go/logger"
 )
 
+var _ fxevent.Logger = (*fxLogger)(nil)
+
 type fxLogger struct {
 	logger logger.Logger
-	fxevent.Logger
 }
 
 func FxLogger(logger logger.Logger) fxevent.Logger {
