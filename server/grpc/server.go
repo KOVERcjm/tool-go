@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/davecgh/go-spew/spew"
 	"google.golang.org/grpc"
 
 	"github.com/kovercjm/tool-go/logger"
@@ -31,7 +30,6 @@ func (s Server) Init(config *server.Config, logger logger.Logger) {
 	)
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
-	spew.Dump(s)
 }
 
 func (s Server) Start(ctx context.Context) error {
