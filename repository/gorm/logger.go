@@ -54,14 +54,10 @@ func (gl Logger) Trace(_ context.Context, begin time.Time, fc func() (string, in
 
 	elapsed := time.Since(begin)
 	sql, rows := fc()
-	fields := []interface{}{"duration", float64(elapsed.Nanoseconds()) / 1e6}
-	if rows != -1 {
-		fields = append(fields, "rows", rows)
-	}
+	fields := []interface{}{"sql", sql, "rows", rows, "ms", float64(elapsed.Nanoseconds()) / 1e6}
 	if gl.SlowThreshold != 0 && elapsed > gl.SlowThreshold {
 		fields = append(fields, "SLOW SQL over threshold", gl.SlowThreshold)
 	}
-	fields = append(fields, "sql", sql)
 
 	switch {
 	case err != nil:
