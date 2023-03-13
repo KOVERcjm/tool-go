@@ -27,6 +27,8 @@ func LoggerInterceptor(logger logger.Logger) grpc.UnaryServerInterceptor {
 			fields = append(fields, "request.deadline", deadline.Format(time.RFC3339))
 		}
 
+		logger.Info("grpc call received", append(fields, "request", req)...)
+
 		resp, err = handler(ctx, req)
 
 		code := status.Code(err)
