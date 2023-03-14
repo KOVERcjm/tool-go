@@ -25,6 +25,8 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 		grpc.MaxSendMsgSize(config.RPCConfig.MessageSize),
 		grpc.MaxRecvMsgSize(config.RPCConfig.MessageSize),
 		grpc.ChainUnaryInterceptor(
+			// TODO confirm orders
+			ErrorInterceptor(),
 			LoggerInterceptor(logger),
 		),
 	)
