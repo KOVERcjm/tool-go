@@ -28,25 +28,30 @@ func LoggerInterceptor(logger logger.Logger) grpc.UnaryServerInterceptor {
 			fields = append(fields, "request.deadline", deadline.Format(time.RFC3339))
 		}
 
-		logger.Info("grpc unary incoming", append(fields, "request", req)...)
+		logger.Debug("grpc unary call incoming", append(fields, "request", req)...)
 
 		resp, err = handler(ctx, req)
 
 		code := status.Code(err)
 		fields = append(fields, "duration", time.Since(startTime), "code", code.String(), "request", req)
-		if err != nil {
-			fields = append(fields, "error", err.Error())
-		} else {
+		if err == nil {
 			fields = append(fields, "response", resp)
+		} else if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+			fields = append(fields, "error", err.Error())
+		} else if s, ok := status.FromError(err); ok {
+			fields = append(fields, "error", s.Message())
+		} else {
+			fields = append(fields, "error", err.Error())
 		}
 		switch code {
-		case codes.Unknown, codes.DeadlineExceeded, codes.AlreadyExists, codes.Internal, codes.Unavailable, codes.DataLoss:
-			logger.Error("grpc unary failed", fields...)
-		case codes.Canceled, codes.InvalidArgument, codes.NotFound, codes.Aborted, codes.PermissionDenied,
-			codes.Unauthenticated, codes.ResourceExhausted, codes.FailedPrecondition, codes.OutOfRange, codes.Unimplemented:
-			logger.Warn("grpc unary rejected", fields...)
+		case codes.Canceled, codes.Unknown, codes.DeadlineExceeded, codes.ResourceExhausted,
+			codes.Unimplemented, codes.Unavailable, codes.Unauthenticated:
+			logger.Warn("grpc unary error from framework", fields...)
+		case codes.InvalidArgument, codes.NotFound, codes.AlreadyExists, codes.PermissionDenied,
+			codes.FailedPrecondition, codes.Aborted, codes.OutOfRange, codes.Internal, codes.DataLoss:
+			logger.Warn("grpc unary error from service", fields...)
 		default:
-			logger.Info("grpc unary done", fields...)
+			logger.Info("grpc unary call finished", fields...)
 		}
 		return resp, err
 	}
