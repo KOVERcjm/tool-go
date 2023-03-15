@@ -28,6 +28,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 			// TODO confirm orders
 			ErrorInterceptor(),
 			LoggerInterceptor(logger),
+			ValidateInterceptor(),
 		),
 	)
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}

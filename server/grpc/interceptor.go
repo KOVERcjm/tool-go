@@ -13,6 +13,19 @@ import (
 	"github.com/kovercjm/tool-go/logger"
 )
 
+func ErrorInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = handler(ctx, req)
+		if err != nil {
+			return
+		}
+		if _, ok := status.FromError(err); !ok && !errors.Is(err, context.DeadlineExceeded) && !errors.Is(err, context.Canceled) {
+			return resp, status.Error(codes.Internal, err.Error())
+		}
+		return
+	}
+}
+
 func LoggerInterceptor(logger logger.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		startTime := time.Now()
@@ -57,15 +70,16 @@ func LoggerInterceptor(logger logger.Logger) grpc.UnaryServerInterceptor {
 	}
 }
 
-func ErrorInterceptor() grpc.UnaryServerInterceptor {
+func ValidateInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		if v, ok := req.(interface {
+			Validate() error
+		}); ok {
+			if err := v.Validate(); err != nil {
+				return nil, status.New(codes.InvalidArgument, err.Error()).Err()
+			}
+		}
 		resp, err = handler(ctx, req)
-		if err != nil {
-			return
-		}
-		if _, ok := status.FromError(err); !ok && !errors.Is(err, context.DeadlineExceeded) && !errors.Is(err, context.Canceled) {
-			return resp, status.Error(codes.Internal, err.Error())
-		}
 		return
 	}
 }
