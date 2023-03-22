@@ -7,6 +7,6 @@ import (
 )
 
 func NewRepository(config *kRepository.Config, logger kLogger.Logger) (kRepository.Repository, error) {
-	// TODO add support for other repository types
+	// TODO add support for other orm types
 	return kGORM.Repository{}.Init(config, logger)
 }

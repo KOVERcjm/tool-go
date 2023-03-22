@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/glebarez/sqlite"
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -20,6 +21,8 @@ import (
 type Repository struct {
 	*gorm.DB
 }
+
+var _ repository.Repository = (*Repository)(nil)
 
 type gormKey struct{}
 
@@ -38,6 +41,8 @@ func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (rep
 	var (
 		logLevel      gormLogger.LogLevel
 		slowThreshold time.Duration
+		gormDB        *gorm.DB
+		err           error
 	)
 	switch strings.ToLower(config.DBLogLevel) {
 	case "silent":
@@ -53,33 +58,13 @@ func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (rep
 		slowThreshold = time.Duration(config.DBSlowThresholdMS) * time.Millisecond
 	}
 
-	mysqlConfig := config.MySQL()
-	dbName := mysqlConfig.DBName
-	mysqlConfig.DBName = ""
-	sqlDB, err := sql.Open("mysql", mysqlConfig.FormatDSN())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to establish database connection")
+	if config.DBHost == "" {
+		gormDB, err = memorySQLiteInit(config, dbLogger, logLevel, slowThreshold)
 	}
-	if _, err = sqlDB.Exec(fmt.Sprintf("create database if not exists `%s`;", config.DBName)); err != nil {
-		return nil, errors.Wrap(err, "failed to init database")
-	}
-	mysqlConfig.DBName = dbName
-
-	gormDB, err := gorm.Open(
-		MySQLDialector{Dialector: mysql.Dialector{Config: &mysql.Config{DSN: config.MySQL().FormatDSN()}}},
-		&gorm.Config{
-			CreateBatchSize: 1000,
-			Logger: Logger{
-				l:                         dbLogger.NoCaller(),
-				IgnoreRecordNotFoundError: config.DBIgnoreRecordNotFoundError,
-				SlowThreshold:             slowThreshold,
-			}.LogMode(logLevel),
-			PrepareStmt:            true,
-			SkipDefaultTransaction: true,
-		},
-	)
+	// TODO add support for other repository types
+	gormDB, err = mySQLInit(config, dbLogger, logLevel, slowThreshold)
 	if err != nil {
-		return nil, errors.Wrap(err, "gorm open database")
+		return nil, errors.Wrap(err, "gorm initialize failed")
 	}
 	if err = gormDB.Use(dbresolver.Register(dbresolver.Config{}).
 		SetConnMaxLifetime(60 * time.Second).
@@ -92,4 +77,48 @@ func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (rep
 	//	return nil, errors.Wrap(err, "gorm initialize tracing")
 	//}
 	return Repository{gormDB}, nil
+}
+
+func mySQLInit(config *repository.Config, dbLogger logger.Logger, logLevel gormLogger.LogLevel, slowThreshold time.Duration) (*gorm.DB, error) {
+	mysqlConfig := config.MySQL()
+	dbName := mysqlConfig.DBName
+	mysqlConfig.DBName = ""
+	sqlDB, err := sql.Open("mysql", mysqlConfig.FormatDSN())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to establish database connection")
+	}
+	if _, err = sqlDB.Exec(fmt.Sprintf("create database if not exists `%s`;", config.DBName)); err != nil {
+		return nil, errors.Wrap(err, "failed to init database")
+	}
+	mysqlConfig.DBName = dbName
+
+	return gorm.Open(
+		MySQLDialector{Dialector: mysql.Dialector{Config: &mysql.Config{DSN: config.MySQL().FormatDSN()}}},
+		&gorm.Config{
+			CreateBatchSize: 1000,
+			Logger: Logger{
+				l:                         dbLogger.NoCaller(),
+				IgnoreRecordNotFoundError: config.DBIgnoreRecordNotFoundError,
+				SlowThreshold:             slowThreshold,
+			}.LogMode(logLevel),
+			PrepareStmt:            true,
+			SkipDefaultTransaction: true,
+		},
+	)
+}
+
+func memorySQLiteInit(config *repository.Config, dbLogger logger.Logger, logLevel gormLogger.LogLevel, slowThreshold time.Duration) (*gorm.DB, error) {
+	return gorm.Open(
+		sqlite.Open(fmt.Sprintf("file:%s?mode=memory&cache=shared", config.DBName)),
+		&gorm.Config{
+			CreateBatchSize: 1000,
+			Logger: Logger{
+				l:                         dbLogger.NoCaller(),
+				IgnoreRecordNotFoundError: config.DBIgnoreRecordNotFoundError,
+				SlowThreshold:             slowThreshold,
+			}.LogMode(logLevel),
+			PrepareStmt:            true,
+			SkipDefaultTransaction: true,
+		},
+	)
 }
