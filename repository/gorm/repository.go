@@ -58,11 +58,13 @@ func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (rep
 		slowThreshold = time.Duration(config.DBSlowThresholdMS) * time.Millisecond
 	}
 
-	if config.DBHost == "" {
+	switch {
+	case config.DBHost == "":
 		gormDB, err = memorySQLiteInit(config, dbLogger, logLevel, slowThreshold)
+	default:
+		// TODO add support for other repository types
+		gormDB, err = mySQLInit(config, dbLogger, logLevel, slowThreshold)
 	}
-	// TODO add support for other repository types
-	gormDB, err = mySQLInit(config, dbLogger, logLevel, slowThreshold)
 	if err != nil {
 		return nil, errors.Wrap(err, "gorm initialize failed")
 	}
