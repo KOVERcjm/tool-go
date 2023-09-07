@@ -24,7 +24,7 @@ var (
 )
 
 func PanicRecovery(logger logger.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
@@ -42,7 +42,7 @@ func PanicRecovery(logger logger.Logger) gin.HandlerFunc {
 				}
 				if logger != nil {
 					s := stack(3)
-					httpRequest, _ := httputil.DumpRequest(c.Request, false)
+					httpRequest, _ := httputil.DumpRequest(ctx.Request, false)
 					headers := strings.Split(string(httpRequest), "\r\n")
 					for idx, header := range headers {
 						current := strings.Split(header, ":")
@@ -57,16 +57,16 @@ func PanicRecovery(logger logger.Logger) gin.HandlerFunc {
 						logger.Warn("Panic Recovered", "timestamp", time.Now(), "error", err, "errorStack", s)
 					}
 				}
-				c.Error(err.(error)) //nolint: errcheck
+				ctx.Error(err.(error)) //nolint: errcheck
 				if brokenPipe {
 					// If the connection is dead, we can't write a status to it.
-					c.Abort()
+					ctx.Abort()
 				} else {
 					// TODO do something when panicked, report via WeChat bot, etc
 				}
 			}
 		}()
-		c.Next()
+		ctx.Next()
 	}
 }
 

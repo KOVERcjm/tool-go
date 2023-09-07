@@ -31,7 +31,7 @@ func ErrorFormatter() gin.HandlerFunc {
 				Code:       http.StatusText(http.StatusInternalServerError),
 				Message:    err.Err.Error(),
 			}
-			if errors.As(err.Err, apiError) {
+			if errors.As(err.Err, &apiError) {
 				if apiError.HTTPStatus == 0 {
 					apiError.HTTPStatus = http.StatusBadRequest
 				}
