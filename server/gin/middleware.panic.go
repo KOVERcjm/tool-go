@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/kovercjm/tool-go/logger"
 	"net"
 	"net/http/httputil"
 	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/kovercjm/tool-go/logger"
 )
 
 var (
@@ -50,9 +52,9 @@ func PanicRecovery(logger logger.Logger) gin.HandlerFunc {
 					}
 					headersToStr := strings.Join(headers, "\r\n")
 					if brokenPipe {
-						logger.Warn(fmt.Sprintf("%s\n%s", err, headersToStr))
+						logger.Warn("Panic Recovered", "timestamp", time.Now(), "headers", headersToStr, "error", err)
 					} else {
-						logger.Warn(fmt.Sprintf("[Recovery] %s panic recovered:\n%s\n%s", timeFormat(time.Now()), err, s))
+						logger.Warn("Panic Recovered", "timestamp", time.Now(), "error", err, "errorStack", s)
 					}
 				}
 				c.Error(err.(error)) //nolint: errcheck

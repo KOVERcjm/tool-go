@@ -23,15 +23,15 @@ func ErrorFormatter() gin.HandlerFunc {
 			return
 		}
 
-		if err := ctx.Errors.ByType(gin.ErrorTypePrivate).Last().Err; err != nil {
+		if err := ctx.Errors.ByType(gin.ErrorTypePrivate).Last(); err != nil {
 			ctx.Header("Content-Type", "application/json; charset=utf-8; error=true")
 
 			apiError := &api.Error{
 				HTTPStatus: http.StatusInternalServerError,
 				Code:       http.StatusText(http.StatusInternalServerError),
-				Message:    err.Error(),
+				Message:    err.Err.Error(),
 			}
-			if errors.As(err, apiError) {
+			if errors.As(err.Err, apiError) {
 				if apiError.HTTPStatus == 0 {
 					apiError.HTTPStatus = http.StatusBadRequest
 				}
@@ -41,7 +41,7 @@ func ErrorFormatter() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(apiError.HTTPStatus, apiError)
 				return
 			}
-			if grpcStatus, ok := status.FromError(err); ok {
+			if grpcStatus, ok := status.FromError(err.Err); ok {
 				apiError.HTTPStatus = runtime.HTTPStatusFromCode(grpcStatus.Code())
 				apiError.Code = http.StatusText(runtime.HTTPStatusFromCode(grpcStatus.Code()))
 			}
