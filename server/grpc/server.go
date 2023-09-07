@@ -20,7 +20,8 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.Config, logger logger.Logger) server.Server {
+func (s Server) Init(config *server.Config, logger logger.Logger) error {
+	// TODO check input
 	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
 	s.logger = logger.NoCaller()
 	s.RPCServer = grpc.NewServer(
@@ -32,7 +33,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 			ValidateInterceptor(),
 		),
 	)
-	return &s
+	return nil
 }
 
 func (s Server) Start(_ context.Context) error {

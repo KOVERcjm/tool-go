@@ -3,11 +3,13 @@ package gin
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/kovercjm/tool-go/logger"
-	"github.com/kovercjm/tool-go/server"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/kovercjm/tool-go/logger"
+	"github.com/kovercjm/tool-go/server"
 )
 
 var _ server.Server = (*Server)(nil)
@@ -20,9 +22,9 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.Config, logger logger.Logger) server.Server {
+func (s Server) Init(config *server.Config, logger logger.Logger) error {
 	if config == nil || logger == nil {
-		return nil
+		return nil // TODO return error
 	}
 	s.config = &server.APIConfig{Port: config.APIConfig.Port}
 	s.logger = logger.NoCaller()
@@ -33,7 +35,7 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 		ErrorFormatter(),
 		PanicRecovery(s.logger),
 	)
-	return &s
+	return nil
 }
 
 func (s Server) Start(ctx context.Context) error {
