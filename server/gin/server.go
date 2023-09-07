@@ -33,9 +33,12 @@ func (s Server) Init(config *server.Config, logger logger.Logger) error {
 	s.GinEngine.Use(
 		APILogging(s.logger),
 		ErrorFormatter(),
-		PanicRecovery(s.logger),
-	)
+		PanicRecovery(s.logger))
 	return nil
+}
+
+func (s Server) Server() interface{} {
+	return s.GinEngine
 }
 
 func (s Server) Start(ctx context.Context) error {

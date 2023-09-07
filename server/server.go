@@ -8,6 +8,7 @@ import (
 
 type Server interface {
 	Init(*Config, logger.Logger) error
+	Server() interface{}
 
 	Start(context.Context) error
 	Stop(context.Context) error
