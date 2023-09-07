@@ -35,18 +35,18 @@ func (s Server) Init(config *server.Config, logger logger.Logger) server.Server 
 	return &s
 }
 
-func (s Server) Start(ctx context.Context) error {
+func (s Server) Start(_ context.Context) error {
 	address := fmt.Sprintf("0.0.0.0:%d", s.config.Port)
 	netListener, err := net.Listen("tcp4", address)
 	if err != nil {
 		return fmt.Errorf("listen grpc endpoint failed: %w", err)
 	}
-	go func(ctx context.Context) {
+	go func() {
 		s.logger.Info("starting", "address to listen", address)
 		if err = s.RPCServer.Serve(netListener); err != nil {
 			s.logger.Error("grpc server failed to serve", "error", err)
 		}
-	}(ctx)
+	}()
 	return nil
 }
 

@@ -6,24 +6,24 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 )
 
 func InitFromEnv(target interface{}, envFiles ...string) {
-	deployment := os.Getenv("DEPLOYMENT")
-	if deployment == "" {
-		deployment = "default"
+	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
+		panic(fmt.Sprintf("cannot load .env file: %v\n", err))
+	}
+	if len(envFiles) > 0 {
+		if err := godotenv.Load(envFiles...); err != nil && !errors.Is(err, os.ErrNotExist) {
+			panic(fmt.Sprintf("cannot load env files [%s]: %v\n", envFiles, err))
+		}
 	}
 
-	if len(envFiles) > 0 {
-		if err := godotenv.Load(envFiles...); err != nil {
-			fmt.Printf("cannot load env files (%s): %v", envFiles, err)
-		}
-	} else {
-		if err := godotenv.Load(); err != nil {
-			fmt.Println("no .env file found")
-		}
+	prefixKey := os.Getenv("ENV_PREFIX")
+	if prefixKey == "" {
+		prefixKey = os.Getenv("DEPLOYMENT")
 	}
-	if err := envconfig.Process(deployment, target); err != nil {
-		fmt.Printf("cannot load config from env: %v", err)
+	if err := envconfig.Process(prefixKey, target); err != nil {
+		panic(fmt.Sprintf("cannot load config from os env: %v", err))
 	}
 }

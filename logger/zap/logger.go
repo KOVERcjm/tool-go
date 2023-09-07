@@ -23,7 +23,7 @@ func (l Logger) Init(config *kLogger.Config) (kLogger.Logger, error) {
 	var zapConfig zap.Config
 	options := []zap.Option{zap.AddCallerSkip(1)}
 
-	if config.Development {
+	if config != nil && config.Development {
 		zapConfig = zap.NewDevelopmentConfig()
 		zapConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		zapConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("01-02T15:04:05.999")
@@ -33,13 +33,13 @@ func (l Logger) Init(config *kLogger.Config) (kLogger.Logger, error) {
 		zapConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339Nano)
 	}
 
-	if config.Debug {
+	if config != nil && config.Debug {
 		zapConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	} else {
 		zapConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
-	if config.StackTraceLevel != "" {
+	if config != nil && config.StackTraceLevel != "" {
 		level, err := zapcore.ParseLevel(config.StackTraceLevel)
 		if err != nil {
 			return nil, err
