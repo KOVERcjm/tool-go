@@ -1,4 +1,4 @@
-package config_test
+package init_test
 
 import (
 	"bufio"
