@@ -20,7 +20,7 @@ type Server struct {
 	logger logger.Logger
 }
 
-func NewGinServer(config *server.Config, logger logger.Logger) *Server {
+func NewServer(config *server.Config, logger logger.Logger) *Server {
 	if config == nil || logger == nil {
 		panic("Missing critical arguments to init a server")
 	}
