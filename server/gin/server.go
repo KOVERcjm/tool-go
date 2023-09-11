@@ -12,6 +12,10 @@ import (
 	"github.com/kovercjm/tool-go/server"
 )
 
+const (
+	CtxToken = "token"
+)
+
 type Server struct {
 	GinEngine  *gin.Engine
 	HTTPServer *http.Server

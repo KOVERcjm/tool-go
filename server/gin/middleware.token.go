@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RequestToken(ignore ...interface{}) gin.HandlerFunc {
+func APIRequestToken(ignore ...interface{}) gin.HandlerFunc {
 	ignoreFuncs := map[string]struct{}{}
 	for _, handler := range ignore {
 		funcName := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
@@ -44,7 +44,7 @@ func RequestToken(ignore ...interface{}) gin.HandlerFunc {
 			token = cookieToken
 		}
 
-		ctx.Set("token", token)
+		ctx.Set(CtxToken, token)
 		ctx.Next()
 	}
 }
