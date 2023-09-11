@@ -13,11 +13,11 @@ import (
 	"github.com/kovercjm/tool-go/init"
 )
 
-var _ = Describe("Testing function InitFromEnv", func() {
+var _ = Describe("Testing function GetEnvConfig", func() {
 	Context("for expected behaviors", func() {
 		It("should load from .env by default if no file is designated", func() {
 			var cfg DotEnv
-			init.InitFromEnv(&cfg)
+			init.GetEnvConfig(&cfg)
 
 			Ω(cfg.KeyA).Should(Equal("VALUE_A"))
 			Ω(cfg.KeyB).Should(Equal("VALUE_B"))
@@ -36,7 +36,7 @@ var _ = Describe("Testing function InitFromEnv", func() {
 				DotEnv
 				KeyC string `envconfig:"KEY_C"`
 			}
-			init.InitFromEnv(&cfg, "some_file_path/.custom.env")
+			init.GetEnvConfig(&cfg, "some_file_path/.custom.env")
 
 			Ω(cfg.KeyA).Should(Equal("VALUE_A"))
 			Ω(cfg.KeyB).Should(Equal("VALUE_B"))
@@ -51,7 +51,7 @@ var _ = Describe("Testing function InitFromEnv", func() {
 			Ω(os.Setenv("ENV_PREFIX", "DEV")).Should(Succeed())
 			Ω(os.Setenv("DEV_KEY_B", "DEV_VALUE_B")).Should(Succeed())
 			var cfg DotEnv
-			init.InitFromEnv(&cfg)
+			init.GetEnvConfig(&cfg)
 
 			Ω(cfg.KeyA).Should(Equal("VALUE_A"))
 			Ω(cfg.KeyB).Should(Equal("DEV_VALUE_B"))
@@ -64,7 +64,7 @@ var _ = Describe("Testing function InitFromEnv", func() {
 			_ = os.Remove(".env")
 
 			var cfg DotEnv
-			init.InitFromEnv(&cfg)
+			init.GetEnvConfig(&cfg)
 
 			Ω(cfg.KeyA).Should(Equal("Default_A"))
 			Ω(cfg.KeyB).Should(Equal("Default_B"))
@@ -80,10 +80,10 @@ var _ = Describe("Testing function InitFromEnv", func() {
 			})
 
 			Ω(func() {
-				init.InitFromEnv(&DotEnv{})
+				init.GetEnvConfig(&DotEnv{})
 			}).ShouldNot(Panic())
 			Ω(func() {
-				init.InitFromEnv(&DotEnv{})
+				init.GetEnvConfig(&DotEnv{})
 			}).Should(Panic())
 
 			DeferCleanup(func() {
@@ -99,10 +99,10 @@ var _ = Describe("Testing function InitFromEnv", func() {
 			})
 
 			Ω(func() {
-				init.InitFromEnv(&DotEnv{}, ".custom.env")
+				init.GetEnvConfig(&DotEnv{}, ".custom.env")
 			}).ShouldNot(Panic())
 			Ω(func() {
-				init.InitFromEnv(&DotEnv{}, ".custom.env")
+				init.GetEnvConfig(&DotEnv{}, ".custom.env")
 			}).Should(Panic())
 
 			DeferCleanup(func() {
@@ -117,7 +117,7 @@ var _ = Describe("Testing function InitFromEnv", func() {
 			patchEnvConfig := ApplyFuncReturn(envconfig.Process, errors.New("some error"))
 
 			Ω(func() {
-				init.InitFromEnv(&DotEnv{}, ".custom.env")
+				init.GetEnvConfig(&DotEnv{}, ".custom.env")
 			}).Should(Panic())
 
 			DeferCleanup(func() {

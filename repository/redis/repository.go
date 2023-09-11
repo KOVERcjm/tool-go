@@ -9,7 +9,7 @@ import (
 )
 
 type Repository struct {
-	client *redis.Client
+	*redis.Client
 }
 
 func New(config *repository.Config) (*Repository, error) {
@@ -26,5 +26,5 @@ func New(config *repository.Config) (*Repository, error) {
 		return nil, err
 	}
 
-	return &Repository{client: client}, nil
+	return &Repository{client}, nil
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func InitFromEnv(target interface{}, envFiles ...string) {
+func GetEnvConfig(target interface{}, envFiles ...string) {
 	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 		panic(fmt.Sprintf("cannot load .env file: %v\n", err))
 	}
