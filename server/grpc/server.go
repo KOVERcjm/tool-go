@@ -36,8 +36,9 @@ func (s Server) Init(config *server.Config, logger logger.Logger) error {
 	return nil
 }
 
-func (s Server) Server() interface{} {
-	return s.RPCServer
+func (s Server) Customize(fn func(server.Server) error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s Server) Start(_ context.Context) error {
