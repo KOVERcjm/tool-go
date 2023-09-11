@@ -11,8 +11,6 @@ import (
 	"github.com/kovercjm/tool-go/server"
 )
 
-var _ server.Server = (*Server)(nil)
-
 type Server struct {
 	RPCServer *grpc.Server
 
@@ -20,28 +18,31 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.Config, logger logger.Logger) error {
-	// TODO check input
-	s.config = &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize}
-	s.logger = logger.NoCaller()
+func NewGRPCServer(config *server.Config, logger logger.Logger) *Server {
+	if config == nil || logger == nil {
+		panic("Missing critical arguments to init a server")
+	}
+	s := Server{
+		config: &server.RPCConfig{Port: config.RPCConfig.Port, MessageSize: config.RPCConfig.MessageSize},
+		logger: logger.NoCaller(),
+	}
+	return &s
+}
+
+func (s *Server) WithDefaultInterceptors() *Server {
 	s.RPCServer = grpc.NewServer(
-		grpc.MaxSendMsgSize(config.RPCConfig.MessageSize),
-		grpc.MaxRecvMsgSize(config.RPCConfig.MessageSize),
+		grpc.MaxSendMsgSize(s.config.MessageSize),
+		grpc.MaxRecvMsgSize(s.config.MessageSize),
 		grpc.ChainUnaryInterceptor(
 			ErrorInterceptor(),
 			LoggerInterceptor(s.logger),
 			ValidateInterceptor(),
 		),
 	)
-	return nil
+	return s
 }
 
-func (s Server) Customize(fn func(server.Server) error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s Server) Start(_ context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	address := fmt.Sprintf("0.0.0.0:%d", s.config.Port)
 	netListener, err := net.Listen("tcp4", address)
 	if err != nil {
@@ -56,7 +57,7 @@ func (s Server) Start(_ context.Context) error {
 	return nil
 }
 
-func (s Server) Stop(_ context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	s.RPCServer.GracefulStop()
 	return nil
 }

@@ -12,8 +12,6 @@ import (
 	"github.com/kovercjm/tool-go/server"
 )
 
-var _ server.Server = (*Server)(nil)
-
 type Server struct {
 	GinEngine  *gin.Engine
 	HTTPServer *http.Server
@@ -22,39 +20,28 @@ type Server struct {
 	logger logger.Logger
 }
 
-func (s Server) Init(config *server.Config, logger logger.Logger) error {
+func NewGinServer(config *server.Config, logger logger.Logger) *Server {
 	if config == nil || logger == nil {
-		return nil // TODO return error
+		panic("Missing critical arguments to init a server")
 	}
-	s.config = &server.APIConfig{Port: config.APIConfig.Port}
-	s.logger = logger.NoCaller()
+	s := Server{
+		GinEngine: gin.New(),
+		config:    &server.APIConfig{Port: config.APIConfig.Port},
+		logger:    logger.NoCaller(),
+	}
+	return &s
+}
 
-	s.GinEngine = gin.New()
+func (s *Server) WithDefaultMiddlewares() *Server {
 	s.GinEngine.Use(
 		APILogging(s.logger),
 		ErrorFormatter(),
 		PanicRecovery(s.logger),
 	)
-	return nil
+	return s
 }
 
-func (s Server) Customize(fn func(server.Server) error) {
-	newServer := Server{
-		GinEngine:  s.GinEngine,
-		HTTPServer: s.HTTPServer,
-		config:     s.config,
-		logger:     s.logger,
-	}
-	if err := fn(&newServer); err != nil {
-		panic(err)
-	}
-	s.GinEngine = newServer.GinEngine
-	s.HTTPServer = newServer.HTTPServer
-	s.config = newServer.config
-	s.logger = newServer.logger
-}
-
-func (s Server) Start(_ context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	address := fmt.Sprintf(":%d", s.config.Port)
 	s.HTTPServer = &http.Server{
 		Addr:    address,
@@ -69,7 +56,7 @@ func (s Server) Start(_ context.Context) error {
 	return nil
 }
 
-func (s Server) Stop(_ context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	s.logger.Info("gin api server is shutting down")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
