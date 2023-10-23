@@ -22,22 +22,20 @@ type Repository struct {
 	*gorm.DB
 }
 
-var _ repository.Repository = (*Repository)(nil)
-
 type gormKey struct{}
 
-func (r Repository) ToCtx(ctx context.Context, connection interface{}) context.Context {
+func (r *Repository) ToCtx(ctx context.Context, connection interface{}) context.Context {
 	return context.WithValue(ctx, gormKey{}, connection)
 }
 
-func (r Repository) Ctx(ctx context.Context) repository.Repository {
+func (r *Repository) Ctx(ctx context.Context) *Repository {
 	if ctxDB, ok := ctx.Value(gormKey{}).(*gorm.DB); ok {
-		return Repository{ctxDB.WithContext(ctx)}
+		return &Repository{ctxDB.WithContext(ctx)}
 	}
-	return Repository{r.DB.WithContext(ctx)}
+	return &Repository{r.DB.WithContext(ctx)}
 }
 
-func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (repository.Repository, error) {
+func New(config *repository.Config, dbLogger logger.Logger) (*Repository, error) {
 	var (
 		logLevel      gormLogger.LogLevel
 		slowThreshold time.Duration
@@ -78,7 +76,7 @@ func (r Repository) Init(config *repository.Config, dbLogger logger.Logger) (rep
 	//if err = gormDB.Use(gormOpentracing.New()); err != nil {
 	//	return nil, errors.Wrap(err, "gorm initialize tracing")
 	//}
-	return Repository{gormDB}, nil
+	return &Repository{gormDB}, nil
 }
 
 func mySQLInit(config *repository.Config, dbLogger logger.Logger, logLevel gormLogger.LogLevel, slowThreshold time.Duration) (*gorm.DB, error) {
